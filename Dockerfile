@@ -11,13 +11,17 @@ WORKDIR /app
 EXPOSE 8000
 
 ARG DEV=false
-RUN pip install --upgrade pip && \
+RUN apk update && \
+    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache --virtual .temp-build-deps \ 
+        postgresql-dev build-base musl-dev && \
+    pip install --upgrade pip && \
     pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
         then pip install -r /tmp/requirements.dev.txt ; \
     fi && \
     rm -rf /tmp && \
-    echo $DEV && \
+    apk del .temp-build-deps && \
     adduser \
         --disabled-password \
         --no-create-home \
